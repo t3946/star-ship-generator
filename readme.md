@@ -66,12 +66,11 @@ A ship builds in a few milliseconds. Large ships are roughly 3k–15k triangles.
 It's a static site with no build step. Serve the folder over HTTP (ES modules don't load from `file://`):
 
 ```sh
-npx http-server shipyard -p 8123 -c-1
-# or
-python -m http.server 8123 --directory shipyard
+npm install
+npm start
 ```
 
-Then open http://127.0.0.1:8123/. three.js loads from jsDelivr via an import map.
+Opens http://127.0.0.1:8123/. three.js loads from jsDelivr via an import map.
 
 Dev tooling lives in `_dev/` (`npm install` there first; uses puppeteer-core with your installed Chrome):
 

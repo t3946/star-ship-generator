@@ -1,3 +1,4 @@
+node_modules/
 _dev/node_modules/
 _dev/out/
 _dev/package-lock.json
