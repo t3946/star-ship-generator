@@ -5,7 +5,7 @@ import { createMaterials, applyLivery, LIVERIES, liveryById } from './livery.js'
 import { randomSeed } from './rng.js';
 import { Stage } from './scene.js';
 import { createUI } from './ui.js';
-import { downloadGLB, glbBuffer, download } from './export.js';
+import { glbBuffer, download } from './export.js';
 import { ExhaustFX } from './fx.js';
 import { zipStore } from './zip.js';
 
@@ -58,9 +58,12 @@ const app = {
     ...DEFAULT_PARAMS,
   },
   mats: createMaterials(),
+  /** which liveries to bake into the GLB download (checkboxes in Export) */
+  exportLiveries: new Set(),
   last: null,
 };
 Object.assign(app.state, parseHash());
+app.exportLiveries.add(app.state.livery);
 
 const stage = new Stage(document.getElementById('view'));
 const ui = createUI(app);
@@ -70,15 +73,15 @@ if (SHOT) { stage.controls.autoRotate = false; ui.spin(false); }
 const fx = new ExhaustFX(app.mats.engineGlow);
 stage.onTick = (t, groups) => fx.tick(t, groups);
 
-/** build one ship group. opts.fx = add on-screen exhaust plumes (never for export) */
-function makeShip(seed, cls, tier, { withFx = true } = {}) {
+/** build one ship group. opts.withFx = on-screen exhaust (never for export). opts.mats = material set (defaults to the live preview mats). */
+function makeShip(seed, cls, tier, { withFx = true, mats = app.mats } = {}) {
   const s = app.state;
   const r = generateShip({ seed, cls, tier, params: { len: s.len, detail: s.detail, append: s.append }, check: DEV });
   const g = new THREE.Group();
   g.name = `${r.cls}-${seed}`;
   let maxMesh = 0, meshes = 0;
   for (const [ch, geo] of Object.entries(r.geometries)) {
-    const m = new THREE.Mesh(geo, app.mats[ch]);
+    const m = new THREE.Mesh(geo, mats[ch]);
     m.name = ch;
     g.add(m);
     meshes++;
@@ -198,13 +201,48 @@ app.toggleSpin = () => {
   ui.spin(stage.controls.autoRotate);
 };
 app.fileBase = () => `${app.state.cls}-${app.state.seed}`.replace(/[^a-z0-9_-]+/gi, '_');
+/** ordered list of checked export liveries (stable LIVERIES order) */
+app.selectedExportLiveries = () => LIVERIES.filter((l) => app.exportLiveries.has(l.id));
 app.exportGLB = async () => {
+  const picks = app.selectedExportLiveries();
+  if (!picks.length) { ui.toast('Pick at least one paint'); return; }
+  const base = app.fileBase();
   const s = app.state;
-  // always export the focused ship (in fleet/tier views too)
-  const g = makeShip(s.seed, s.cls, s.tier, { withFx: false });
-  const bytes = await downloadGLB(g, `${app.fileBase()}.glb`);
-  disposeShip(g);
-  ui.toast(`Saved ${app.fileBase()}.glb (${(bytes / 1024).toFixed(0)} KB)`);
+  // private mats so the on-screen preview never flashes during multi-paint export
+  const mats = createMaterials();
+  const g = makeShip(s.seed, s.cls, s.tier, { withFx: false, mats });
+  try {
+    if (picks.length === 1) {
+      applyLivery(mats, picks[0]);
+      const buf = await glbBuffer(g, base);
+      download(new Blob([buf], { type: 'model/gltf-binary' }), `${base}.glb`);
+      ui.toast(`Saved ${base}.glb (${(buf.byteLength / 1024).toFixed(0)} KB)`);
+      return;
+    }
+    ui.toast(`Building ${picks.length} paints…`);
+    await new Promise((r) => setTimeout(r, 30));
+    const files = [];
+    for (const l of picks) {
+      applyLivery(mats, l);
+      const name = `${base}-${l.id}`;
+      files.push({ name: name + '.glb', data: new Uint8Array(await glbBuffer(g, name)) });
+    }
+    const readme = [
+      `Shipyard paints: ${s.cls}, seed ${s.seed}, tier ${'SML'[s.tier]}`,
+      `Liveries: ${picks.map((l) => l.name).join(', ')}`,
+      'Units: meters, Y-up, nose +Z. One mesh + one material per channel, box-mapped UVs.',
+      'License: CC0 1.0 - these models are yours to use for anything, no attribution required.',
+      `Regenerate: ${location.origin}${location.pathname}${toHash(s)}`,
+    ];
+    files.push({ name: 'README.txt', data: readme.join('\r\n') + '\r\n' });
+    const zip = zipStore(files);
+    const zipName = `${base}-paints.zip`;
+    download(new Blob([zip], { type: 'application/zip' }), zipName);
+    ui.toast(`Saved ${zipName} (${(zip.length / 1024).toFixed(0)} KB)`);
+  } finally {
+    disposeShip(g);
+    for (const m of Object.values(mats)) m.dispose();
+  }
 };
 /** all nine fleet siblings as GLBs in one store-only zip */
 app.fleetZipName = () => `shipyard-${app.state.cls}-${app.state.seed}-fleet.zip`.replace(/[^a-z0-9_.-]+/gi, '_');

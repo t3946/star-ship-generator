@@ -16,17 +16,41 @@ export function createUI(app) {
     b.addEventListener('click', () => app.set({ cls: c.id }));
     grid.appendChild(b);
   });
-  // liveries
+  const chipHtml = (l) => ['primary', 'accent', 'accent2', 'structure', 'windows', 'engineGlow']
+    .map((k) => `<i style="background:${l.ch[k].emissive || l.ch[k].color}"></i>`).join('');
+
+  // liveries (preview)
   const list = $('liveryList');
   for (const l of LIVERIES) {
     const b = document.createElement('button');
     b.dataset.livery = l.id;
-    const chips = ['primary', 'accent', 'accent2', 'structure', 'windows', 'engineGlow']
-      .map((k) => `<i style="background:${l.ch[k].emissive || l.ch[k].color}"></i>`).join('');
-    b.innerHTML = `<span class="chips">${chips}</span><span class="name">${l.name}</span>`;
+    b.innerHTML = `<span class="chips">${chipHtml(l)}</span><span class="name">${l.name}</span>`;
     b.addEventListener('click', () => app.set({ livery: l.id }));
     list.appendChild(b);
   }
+
+  // export paint checkboxes — independent of the previewed livery
+  const exportList = $('exportLiveries');
+  const glbBtn = $('glbBtn');
+  const syncGlbLabel = () => {
+    const n = app.exportLiveries?.size || 0;
+    if (n <= 1) glbBtn.textContent = 'Download .glb';
+    else glbBtn.textContent = `Download .zip (${n} paints)`;
+    glbBtn.disabled = n === 0;
+  };
+  for (const l of LIVERIES) {
+    const lab = document.createElement('label');
+    lab.innerHTML = `<input type="checkbox" value="${l.id}"><span class="chips">${chipHtml(l)}</span><span class="name">${l.name}</span>`;
+    const cb = lab.querySelector('input');
+    cb.checked = app.exportLiveries.has(l.id);
+    cb.addEventListener('change', () => {
+      if (cb.checked) app.exportLiveries.add(l.id);
+      else app.exportLiveries.delete(l.id);
+      syncGlbLabel();
+    });
+    exportList.appendChild(lab);
+  }
+  syncGlbLabel();
 
   // seed field: apply on Enter / blur
   const seed = $('seed');
@@ -48,7 +72,11 @@ export function createUI(app) {
   }
   $('resetShape').addEventListener('click', () => app.set({ len: 1, detail: 0.5, append: 1 }));
 
-  $('glbBtn').addEventListener('click', () => app.exportGLB());
+  glbBtn.addEventListener('click', async () => {
+    if (glbBtn.disabled) return;
+    glbBtn.disabled = true;
+    try { await app.exportGLB(); } finally { syncGlbLabel(); }
+  });
   $('zipBtn').addEventListener('click', async () => {
     const btn = $('zipBtn');
     if (btn.disabled) return;

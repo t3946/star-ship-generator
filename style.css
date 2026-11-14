@@ -100,6 +100,21 @@ input[type=range]:hover::-webkit-slider-thumb { background: var(--accent); }
 .liveries .name { flex: 1; }
 .liveries button[aria-pressed="true"] { border-color: var(--accent); background: #1d1a15; }
 
+.lbl.sub { margin-top: 2px; font-size: 11px; color: var(--dim); font-weight: 500; }
+.export-liveries { display: grid; gap: 2px; margin: 0 0 10px; }
+.export-liveries label {
+  display: flex; align-items: center; gap: 8px; height: 26px; padding: 0 8px;
+  border: 1px solid transparent; border-radius: 3px; cursor: pointer; font-size: 12px; color: var(--muted);
+}
+.export-liveries label:hover { color: var(--text); background: #141518; }
+.export-liveries label:has(input:checked) { color: var(--text); border-color: var(--line2); background: #16181c; }
+.export-liveries input { accent-color: var(--accent); width: 13px; height: 13px; margin: 0; flex: none; }
+.export-liveries .chips { display: flex; flex: none; }
+.export-liveries .chips i { width: 9px; height: 11px; display: block; }
+.export-liveries .chips i:first-child { border-radius: 2px 0 0 2px; }
+.export-liveries .chips i:last-child { border-radius: 0 2px 2px 0; }
+.export-liveries .name { flex: 1; min-width: 0; }
+
 .exports { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .exports .wide { grid-column: 1 / -1; background: #1d1a15; border-color: #5a4220; color: #ffd08a; font-weight: 600; }
 .exports .wide:hover { border-color: var(--accent); }
