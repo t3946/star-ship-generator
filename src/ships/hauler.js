@@ -2,7 +2,8 @@
 // tower over an engine block with a drum bank.
 // Family signature: container rows abreast (1/2/3) x container slots along length.
 import { cbox, box, boxFace, Hull, cdrum, drum } from '../geom.js';
-import { addEngine, addAntenna, addDish, windowRow, hazard, ribs, windowedBox, greebleQuad, offset, offsetZ, platePass } from '../details.js';
+import { addEngine, addAntenna, windowRow, hazard, ribs, windowedBox, greebleQuad, offset, offsetZ, platePass } from '../details.js';
+import { addDish } from '../dish.js';
 import { hull, FACE8 } from './common.js';
 
 export function buildHauler(b, { style, rng, tier, P }) {

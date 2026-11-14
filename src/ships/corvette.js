@@ -2,7 +2,8 @@
 // batteries, flank sponsons, staggered engine nacelles.
 // Family signature: turret count 2/4/6 (+ sponson mounts).
 import { cbox, box, boxFace, drum, Hull, patch, rect } from '../geom.js';
-import { addEngine, addAntenna, addDish, addTurret, windowRow, hazard, windowedBox, offset, greebleQuad, platePass } from '../details.js';
+import { addEngine, addAntenna, addTurret, windowRow, hazard, windowedBox, offset, greebleQuad, platePass } from '../details.js';
+import { addDish } from '../dish.js';
 import { hull, FACE8 } from './common.js';
 
 export function buildCorvette(b, { style, rng, tier, P }) {
@@ -119,7 +120,8 @@ export function buildCorvette(b, { style, rng, tier, P }) {
   b.add('accent', hazard(boxFace(bw, bh, bd, '+z'), { along: 'u', t0: 0, t1: 1, a0: 0.05, a1: 0.22, n: 14, h: L * 0.001 }), { p: [0, by, iz + id * 0.15] }, 'bridge-hazard');
   addAntenna(b, [bw * 0.12, by + bh * 0.45, iz + id * 0.15], L * 0.06, L * 0.0016);
   addAntenna(b, [-bw * 0.1, by + bh * 0.45, iz + id * 0.15 - bd * 0.3], L * 0.04, L * 0.0012);
-  addDish(b, [0, by + bh * 0.45, iz + id * 0.15 - bd * 0.3], L * 0.02);
+  // Seat on the bridge-top pad; dish pedestal clears its own platform by construction.
+  addDish(b, [0, by + bh * 0.8, iz + id * 0.1 - bd * 0.15], L * 0.018);
   b.add('windows', windowRow(tower.quad(FACE8.right, 1), { along: 'v', t0: 0.1, t1: 0.9, a0: 0.45, a1: 0.6, count: 3, fill: 0.5, h: L * 0.001 }), { mirror: true }, 'island-windows');
 
   // --- turret batteries ---

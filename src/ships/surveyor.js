@@ -2,7 +2,8 @@
 // nose (twin rings at large tier), emissive hoop, sensor nodes on the ring.
 // Family signature: rings x nodes.
 import { torus, chamferRect, cbox, cdrum, drum, box, wingSurface, Hull, boxFace, patch, rect } from '../geom.js';
-import { addEngine, addAntenna, addDish, windowRow, hazard, ribs, offset, offsetZ } from '../details.js';
+import { addEngine, addAntenna, windowRow, hazard, ribs, offset, offsetZ } from '../details.js';
+import { addDish } from '../dish.js';
 import { hull, FACE8 } from './common.js';
 
 export function buildSurveyor(b, { style, rng, tier, P }) {

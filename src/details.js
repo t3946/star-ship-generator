@@ -140,28 +140,7 @@ export function addAntenna(b, p, height, r = 0.06, { mirror = false, tip = true,
   b.add(parts, { p, r: [down ? Math.PI / 2 : -Math.PI / 2, 0, 0], mirror }, 'antenna');
 }
 
-/** dish antenna on a stalk standing on p; rot orients the dish (opens toward local +Z) */
-export function addDish(b, p, radius, rot = [-1.0, 0.6, 0], { mirror = false } = {}) {
-  const stalkH = radius * 0.9;
-  b.add({ structure: offsetZ(drum(radius * 0.1, stalkH, 6), stalkH / 2) }, { p, r: [-Math.PI / 2, 0, 0], mirror }, "dish-stalk");
-  b.add({ accent2: loftDish(radius), structure: offsetZ(drum(radius * 0.04, radius * 0.7, 5), radius * 0.3) },
-    { p: [p[0], p[1] + stalkH, p[2]], r: rot, mirror }, "dish");
-}
-function loftDish(R) {
-  // shallow cone opening toward +Z, both sides visible (inner + outer skin)
-  const seg = 12;
-  const out = [];
-  const ring = (r, z) => { const pts = []; for (let i = 0; i < seg; i++) { const a = (i / seg) * Math.PI * 2; pts.push([Math.cos(a) * r, Math.sin(a) * r, z]); } return pts; };
-  const a = ring(R * 0.15, 0), bb = ring(R, R * 0.35), a2 = ring(R * 0.15, -R * 0.06), b2 = ring(R * 1.0, R * 0.3);
-  for (let i = 0; i < seg; i++) {
-    const i2 = (i + 1) % seg;
-    // inner (faces +Z / inward)
-    out.push(...[a[i], bb[i], bb[i2]].flat(), ...[a[i], bb[i2], a[i2]].flat());
-    // outer (faces -Z)
-    out.push(...[a2[i], b2[i2], b2[i]].flat(), ...[a2[i], a2[i2], b2[i2]].flat());
-  }
-  return out;
-}
+export { addDish } from './dish.js';
 
 /**
  * Gun turret centered at p on a deck, barrels pointing toward +Z (or -Z if
