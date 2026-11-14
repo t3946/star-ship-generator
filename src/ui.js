@@ -64,13 +64,18 @@ export function createUI(app) {
   $('spinBtn').addEventListener('click', () => app.toggleSpin());
 
   // sliders: live preview while dragging (cheap enough), commit to URL on change
-  const sliders = [['sLen', 'oLen', 'len', (v) => v.toFixed(2) + '×'], ['sDetail', 'oDetail', 'detail', (v) => Math.round(v * 100) + '%'], ['sAppend', 'oAppend', 'append', (v) => v.toFixed(2) + '×']];
+  const sliders = [
+    ['sLen', 'oLen', 'len', (v) => v.toFixed(2) + '×'],
+    ['sDetail', 'oDetail', 'detail', (v) => Math.round(v * 100) + '%'],
+    ['sAppend', 'oAppend', 'append', (v) => v.toFixed(2) + '×'],
+    ['sChord', 'oChord', 'chord', (v) => v.toFixed(2) + '×'],
+  ];
   for (const [id, out, key, f] of sliders) {
     const el = $(id);
     el.addEventListener('input', () => { $(out).textContent = f(+el.value); app.set({ [key]: +el.value }, { live: true }); });
     el.addEventListener('change', () => app.set({ [key]: +el.value }));
   }
-  $('resetShape').addEventListener('click', () => app.set({ len: 1, detail: 0.5, append: 1 }));
+  $('resetShape').addEventListener('click', () => app.set({ len: 1, detail: 0.5, append: 1, chord: 1 }));
 
   glbBtn.addEventListener('click', async () => {
     if (glbBtn.disabled) return;

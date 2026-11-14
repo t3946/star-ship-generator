@@ -19,7 +19,7 @@ export const CLASSES = [
 ];
 export const classById = (id) => CLASSES.find((c) => c.id === id) || CLASSES[0];
 
-export const DEFAULT_PARAMS = { len: 1, detail: 0.5, append: 1 };
+export const DEFAULT_PARAMS = { len: 1, detail: 0.5, append: 1, chord: 1 };
 
 /**
  * Deterministic: style stream depends only on seed + class, so a seed keeps

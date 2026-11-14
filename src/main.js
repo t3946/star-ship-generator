@@ -26,10 +26,11 @@ function parseHash() {
   if (p.get('l') && LIVERIES.some((l) => l.id === p.get('l'))) s.livery = p.get('l');
   if (VIEWS.includes(p.get('v'))) s.view = p.get('v');
   const num = (k, lo, hi) => { const v = parseFloat(p.get(k)); return Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : undefined; };
-  const len = num('len', 0.8, 1.3), detail = num('d', 0, 1), append = num('a', 0.7, 1.4);
+  const len = num('len', 0.8, 1.3), detail = num('d', 0, 1), append = num('a', 0.7, 1.4), chord = num('ch', 0.5, 1.4);
   if (len !== undefined) s.len = len;
   if (detail !== undefined) s.detail = detail;
   if (append !== undefined) s.append = append;
+  if (chord !== undefined) s.chord = chord;
   return s;
 }
 function toHash(s) {
@@ -38,6 +39,7 @@ function toHash(s) {
   if (s.len !== DEFAULT_PARAMS.len) p.set('len', s.len.toFixed(2));
   if (s.detail !== DEFAULT_PARAMS.detail) p.set('d', s.detail.toFixed(2));
   if (s.append !== DEFAULT_PARAMS.append) p.set('a', s.append.toFixed(2));
+  if (s.chord !== DEFAULT_PARAMS.chord) p.set('ch', s.chord.toFixed(2));
   if (s.view !== 'ship') p.set('v', s.view);
   if (SHOT && /(^|[#&])ui=0(&|$)/.test(location.hash)) p.set('ui', '0');
   return '#' + p.toString();
@@ -76,7 +78,7 @@ stage.onTick = (t, groups) => fx.tick(t, groups);
 /** build one ship group. opts.withFx = on-screen exhaust (never for export). opts.mats = material set (defaults to the live preview mats). */
 function makeShip(seed, cls, tier, { withFx = true, mats = app.mats } = {}) {
   const s = app.state;
-  const r = generateShip({ seed, cls, tier, params: { len: s.len, detail: s.detail, append: s.append }, check: DEV });
+  const r = generateShip({ seed, cls, tier, params: { len: s.len, detail: s.detail, append: s.append, chord: s.chord }, check: DEV });
   const g = new THREE.Group();
   g.name = `${r.cls}-${seed}`;
   let maxMesh = 0, meshes = 0;
@@ -185,7 +187,7 @@ app.set = (patch, { live = false } = {}) => {
   Object.assign(app.state, patch);
   const s = app.state;
   ui.sync(s);
-  const geomChanged = ['seed', 'cls', 'tier', 'view', 'len', 'detail', 'append'].some((k) => prev[k] !== s[k]);
+  const geomChanged = ['seed', 'cls', 'tier', 'view', 'len', 'detail', 'append', 'chord'].some((k) => prev[k] !== s[k]);
   if (prev.livery !== s.livery) applyLivery(app.mats, liveryById(s.livery)), (stage.dirty = true);
   if (geomChanged) rebuild(prev.view !== s.view ? 'reset' : 'keep');
   if (live) { clearTimeout(hashTimer); hashTimer = setTimeout(writeHash, 250); }

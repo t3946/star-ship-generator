@@ -135,41 +135,42 @@ export function buildFighter(b, { style, rng, tier, P }) {
 
   // --- wings ---
   const wy = S.wingY * H;
-  const t0 = H * 0.36, t1 = t0 * 0.4;
+  const t0 = H * 0.36, t1 = t0 * 0.28;
   const span = L * 0.42 * S.span * A * [0.86, 1, 1.16][tier];
+  const C = P.chord; // nose–stern chord scale (Shape → Wing chord)
   const rx = W * 0.4;
   let wings = [];
   const wz = z0 + 0.36 * L;
   switch (S.wing) {
     case 'swept': {
-      const rc = 0.4 * L;
-      wings = [[{ x: rx, y: wy, z: wz, c: rc, t: t0 }, { x: rx + span, y: wy + span * S.dih, z: wz - 0.24 * L * A, c: rc * 0.32, t: t1 }]];
+      const rc = 0.28 * L * C;
+      wings = [[{ x: rx, y: wy, z: wz, c: rc, t: t0 }, { x: rx + span, y: wy + span * S.dih, z: wz - 0.24 * L * A, c: rc * 0.2, t: t1 }]];
       break;
     }
     case 'delta': {
-      const rc = 0.62 * L, tc = 0.06 * L;
+      const rc = 0.44 * L * C, tc = 0.03 * L * C;
       wings = [[{ x: rx, y: wy, z: wz - 0.04 * L, c: rc, t: t0 }, { x: rx + span * 0.85, y: wy + span * S.dih * 0.5, z: wz - 0.04 * L - rc / 2 + tc / 2 + 0.02 * L, c: tc, t: t1 }]];
       break;
     }
     case 'forward': {
-      const rc = 0.34 * L;
-      wings = [[{ x: rx, y: wy, z: wz - 0.08 * L, c: rc, t: t0 }, { x: rx + span, y: wy + span * S.dih, z: wz + 0.06 * L * A, c: rc * 0.45, t: t1 }]];
+      const rc = 0.24 * L * C;
+      wings = [[{ x: rx, y: wy, z: wz - 0.08 * L, c: rc, t: t0 }, { x: rx + span, y: wy + span * S.dih, z: wz + 0.06 * L * A, c: rc * 0.22, t: t1 }]];
       break;
     }
     case 'cranked': {
-      const rc = 0.58 * L;
+      const rc = 0.4 * L * C;
       wings = [[
         { x: rx, y: wy, z: wz, c: rc, t: t0 },
-        { x: rx + span * 0.42, y: wy + span * 0.1 * S.dih, z: wz - 0.12 * L, c: 0.3 * L, t: t0 * 0.7 },
-        { x: rx + span, y: wy + span * S.dih, z: wz - 0.26 * L * A, c: 0.1 * L, t: t1 },
+        { x: rx + span * 0.42, y: wy + span * 0.1 * S.dih, z: wz - 0.12 * L, c: 0.2 * L * C, t: t0 * 0.6 },
+        { x: rx + span, y: wy + span * S.dih, z: wz - 0.26 * L * A, c: 0.05 * L * C, t: t1 },
       ]];
       break;
     }
     case 'xwing': {
-      const rc = 0.3 * L;
+      const rc = 0.2 * L * C;
       const zx = z0 + 0.26 * L;
       for (const sgn of [1, -1]) {
-        wings.push([{ x: rx, y: sgn * H * 0.35, z: zx, c: rc, t: t0 * 0.8 }, { x: rx + span * 0.95, y: sgn * (H * 0.35 + span * 0.32), z: zx - 0.05 * L, c: rc * 0.6, t: t1 }]);
+        wings.push([{ x: rx, y: sgn * H * 0.35, z: zx, c: rc, t: t0 * 0.8 }, { x: rx + span * 0.95, y: sgn * (H * 0.35 + span * 0.32), z: zx - 0.05 * L, c: rc * 0.28, t: t1 }]);
       }
       break;
     }
@@ -200,13 +201,15 @@ export function buildFighter(b, { style, rng, tier, P }) {
       }
     }
     if (S.tip === 'guns' || S.wing === 'xwing') {
-      const gl = L * 0.36, gr = Math.max(t1 * 0.7, L * 0.008);
+      // Tip barrels track wing chord so they don't overshoot a narrow tip.
+      const gl = Math.max(tip.c * 2.2, L * 0.14 * C);
+      const gr = Math.max(t1 * 0.7, L * 0.008);
       const g = offsetZ(drum(gr, gl, 6), 0);
       const mz = offsetZ(drum(gr * 0.45, gl * 0.4, 5), gl * 0.65);
       b.add({ structure: g, accent2: mz }, { p: [tip.x, tip.y, tip.z + gl * 0.15], mirror: true }, 'tip-gun');
     } else if (S.tip === 'missiles') {
       for (let m = 0; m < 2; m++) {
-        const mr = L * 0.012, ml = L * 0.16;
+        const mr = L * 0.012, ml = Math.max(tip.c * 1.1, L * 0.08 * C);
         b.add({ accent2: drum(mr, ml, 6, { r2: mr * 0.4 }) }, { p: [tip.x - L * 0.02 * (m + 1) - span * 0.12 * m, tip.y - t1 * 0.5 - mr * 0.6, tip.z + 0.01 * L], mirror: true }, 'missile');
       }
     } else if (S.tip === 'fins') {
