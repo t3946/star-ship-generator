@@ -86,20 +86,24 @@ export function buildFighter(b, { style, rng, tier, P }) {
   }
 
   // --- canopy ---
+  // Continuous glass: aft rise → flat crown → upright windshield face → tip.
+  // No mid frame rib (it read as a weird bar between two panes).
   const cLen = big ? 0.3 : small ? 0.2 : 0.22;
   const cz0 = z0 + ((big ? 0.44 : 0.5) + S.canopy * (big ? 0.1 : 0.12)) * L, cz1 = cz0 + cLen * L;
   const cH = small ? 1.15 : 1;
   const cy = (z) => fus.top(z) - H * 0.1;
+  const cSpan = cz1 - cz0;
+  const zAt = (t) => cz0 + cSpan * t;
   const can = new Hull([
-    { z: cz0, w: W * 0.32, h: H * 0.12, y: cy(cz0), tw: 0.6, bw: 1, ct: 0.6, cb: 0.1 },
-    { z: cz0 + 0.08 * L, w: W * 0.5, h: H * 0.42 * cH, y: cy(cz0 + 0.08 * L), tw: 0.45, bw: 1, ct: 0.6, cb: 0.1 },
-    ...(big ? [{ z: cz0 + 0.19 * L, w: W * 0.48, h: H * 0.4, y: cy(cz0 + 0.19 * L), tw: 0.45, bw: 1, ct: 0.6, cb: 0.1 }] : []),
-    { z: cz1, w: W * 0.22, h: H * 0.08, y: cy(cz1), tw: 0.6, bw: 1, ct: 0.6, cb: 0.1 },
+    { z: zAt(0), w: W * 0.3, h: H * 0.1, y: cy(zAt(0)), tw: 0.6, bw: 1, ct: 0.55, cb: 0.1 },
+    { z: zAt(0.22), w: W * 0.48, h: H * 0.36 * cH, y: cy(zAt(0.22)), tw: 0.45, bw: 1, ct: 0.55, cb: 0.1 },
+    // crown — almost level top so the next face breaks near a right angle
+    { z: zAt(0.48), w: W * 0.52, h: H * 0.42 * cH, y: cy(zAt(0.48)), tw: 0.42, bw: 1, ct: 0.5, cb: 0.1 },
+    // windshield panel — stays high, leans forward (the extra glass segment)
+    { z: zAt(0.72), w: W * 0.4, h: H * 0.34 * cH, y: cy(zAt(0.72)) - H * 0.04, tw: 0.5, bw: 1, ct: 0.55, cb: 0.1 },
+    { z: zAt(1), w: W * 0.2, h: H * 0.07, y: cy(zAt(1)), tw: 0.6, bw: 1, ct: 0.6, cb: 0.1 },
   ]);
   b.add('glass', can.tris(), null, 'canopy');
-  // canopy frame rib
-  b.add('structure', offsetZ(cbox(W * 1.02, H * 0.86 * cH, L * 0.012, L * 0.002), 0), { p: [0, cy(cz0 + 0.08 * L) + H * 0.02, cz0 + 0.08 * L] }, 'canopy-frame');
-  if (big) b.add('structure', cbox(W * 0.98, H * 0.84, L * 0.01, L * 0.002), { p: [0, cy(cz0 + 0.19 * L) + H * 0.02, cz0 + 0.19 * L] }, 'canopy-frame2');
 
   // --- L: dorsal deck (second fuselage layer) running from the tail to the canopy ---
   let deck = null;

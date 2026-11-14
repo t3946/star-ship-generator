@@ -163,7 +163,6 @@ export function buildRacer(b, { style, rng, tier, P }) {
       { z: c1, w: h.r * 0.14, h: sh * 0.06, x: h.x, y: Math.max(cy(c1), h.h.top(c1) - h.rh * 0.1), tw: 0.5, bw: 1, ct: 0.6, cb: 0.1 },
     ]);
     b.add('glass', canopy.tris(), null, 'canopy');
-    b.add('structure', cbox(h.r * 0.95, sh * 0.5, L * 0.008, L * 0.002), { p: [h.x, cy(cm) + sh * 0.1, cm] }, 'canopy-frame');
     main.spine = spine; main.sh = sh;
   }
 
