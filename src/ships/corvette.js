@@ -181,10 +181,9 @@ export function buildCorvette(b, { style, rng, tier, P }) {
     addEngine(b, { x, y: as.y || 0, z: z0 - er * 0.5, r: er, length: L * 0.1, seg: 10, ch: 'structure', bands: 1 });
   }
   if (S.nacelles !== 'none') {
-    // L used to place 3 staggered flank nacelles that heavily overlapped; now a
-    // clean vertical twin. S/M keep the lighter staggered layout.
+    // L: vertical twin. S/M: single flank nacelle (M used to place 2 and they overlapped).
     const stackL = tier === 2;
-    const nn = stackL ? 2 : tier + 1;
+    const nn = stackL ? 2 : 1;
     for (let i = 0; i < nn; i++) {
       const nz = stackL ? z0 + 0.1 * L : z0 + 0.04 * L + i * 0.09 * L;
       const s = lower.at(nz + 0.08 * L);
