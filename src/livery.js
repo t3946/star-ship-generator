@@ -43,9 +43,25 @@ export const LIVERIES = [
   {
     id: 'stealth', name: 'Stealth',
     ch: {
-      primary: solid('#3a3e44', 0.35, 0.52), structure: solid('#151618', 0.3, 0.75),
-      accent: solid('#474c53', 0.4, 0.5), accent2: solid('#7a1e1e', 0.3, 0.55),
-      glass: solid('#0d0f11', 0.3, 0.08), windows: glow('#ff4a3a', 3.2), engineGlow: glow('#ff5544', 6),
+      primary: solid('#3a3e44', 0.35, 0.52),
+      structure: solid('#151618', 0.3, 0.75),
+      accent: solid('#5c1616', 0.3, 0.55),
+      accent2: solid('#7a1e1e', 0.3, 0.55),
+      glass: solid('#0d0f11', 0.3, 0.08),
+      windows: glow('#ff4a3a', 3.2),
+      engineGlow: glow('#ff5544', 6),
+    },
+  },
+  {
+    id: 'borg', name: 'Borg',
+    ch: {
+      primary: solid('#3a443c', 0.35, 0.52),
+      structure: solid('#151816', 0.3, 0.75),
+      accent: solid('#1f5c16', 0.3, 0.55),
+      accent2: solid('#277a1e', 0.3, 0.55),
+      glass: solid('#0d110f', 0.3, 0.08),
+      windows: glow('#54ff3a', 3.2),
+      engineGlow: glow('#66ff44', 6),
     },
   },
 ];
